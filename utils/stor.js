@@ -14,7 +14,7 @@ const mysql = require('serverless-mysql')({config: dbConfig});
 module.exports.store = async (data) => {
     console.log(data);
     let res = await mysql.query(
-        "INSERT INTO `car_plate_logs` (`device_id`, `picture`, `time`, `plate`, `vehicle`) VALUES(?,?,?,?,?);",
+        "INSERT INTO `parking_camera_logs` (`device_id`, `picture`, `time`, `plate`, `vehicle`) VALUES(?,?,?,?,?);",
         [
             data.device_id,
             data.picture,
