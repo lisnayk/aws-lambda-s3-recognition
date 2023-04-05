@@ -12,11 +12,14 @@ const mysql = require('serverless-mysql')({config: dbConfig});
  * @return {*}
  */
 module.exports.store = async (data) => {
-    console.log(data);
+    const deviceId = extractDeviceId(data.device_id);
+    const buildingId = await getBuildingIdByDeviceId(deviceId)
+    console.log(deviceId, buildingId);
     let res = await mysql.query(
-        "INSERT INTO `parking_camera_logs` (`device_id`, `picture`, `time`, `plate`, `vehicle`) VALUES(?,?,?,?,?);",
+        "INSERT INTO `parking_camera_logs` (`device_id`, `building_id`,`picture`, `time`, `plate`, `vehicle`) VALUES(?,?,?,?,?,?);",
         [
-            data.device_id,
+            deviceId,
+            buildingId,
             data.picture,
             data.time,
             data.plate,
@@ -25,4 +28,32 @@ module.exports.store = async (data) => {
     );
     await mysql.end();
     return res;
+}
+
+/**
+ * getBuildingIdByDeviceId
+ * @param deviceId
+ * @return {Promise<unknown>}
+ */
+async function getBuildingIdByDeviceId(deviceId) {
+    const res = await mysql.query("SELECT `building_id` FROM `building_dev_permissions` WHERE `device_id`=?;",
+        [
+            deviceId
+        ]
+    );
+    if (res.length > 0) {
+        return res[0].building_id;
+    }
+    return null;
+}
+
+/**
+ * extractDeviceId
+ * @param srcFileName
+ * @return {string}
+ */
+function extractDeviceId(srcFileName) {
+    const deviceId = srcFileName.split("_").shift();
+    if (deviceId) return deviceId;
+    return srcFileName;
 }

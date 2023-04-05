@@ -23,14 +23,14 @@ module.exports.handler = async (event) => {
         let plate = await plateService.getPlateInfo(Buffer.from(originImage.Body).toString('base64'));
         if (plate.results.length > 0) {
             vehicle = await getVehicleInfo(plate.results[0].plate);
+            await store({
+                device_id: srcKey,
+                time: new Date().toISOString(),
+                picture: s3Thumbnail,
+                plate: JSON.stringify(plate),
+                vehicle: JSON.stringify(vehicle)
+            });
         }
-        await store({
-            device_id: srcKey,
-            time: new Date().toISOString(),
-            picture: s3Thumbnail,
-            plate: JSON.stringify(plate),
-            vehicle: JSON.stringify(vehicle)
-        });
         await notifyService.notify({...event.Records[0].s3, plate, vehicle});
     } catch (error) {
         console.log(error);
