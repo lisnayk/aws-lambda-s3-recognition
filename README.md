@@ -70,3 +70,29 @@ Which should result in response similar to the following:
     "body": "{\n  \"message\": \"Go Serverless v3.0! Your function executed successfully!\",\n  \"input\": \"\"\n}"
 }
 ```
+# FTP Server configuration
+
+https://linuxbeast.com/tutorials/aws/install-s3fs-and-mount-s3-bucket-on-ubuntu-18-04/
+https://www.digitalocean.com/community/tutorials/how-to-set-up-vsftpd-for-a-user-s-directory-on-ubuntu-18-04
+https://github.com/kman46/ftpsetup
+https://github.com/s3fs-fuse/s3fs-fuse
+
+mount.sh
+```shell
+
+#!/usr/bin/env bash
+
+S3BUCKETNAME=building-manager-s3fs
+S3BUCKETREGION=eu-west-1
+FTPUSERNAME=ftpuser
+
+#=======================
+
+EC2METALATEST=http://169.254.169.254/latest
+EC2METAURL=$EC2METALATEST/meta-data/iam/security-credentials/
+EC2ROLE=`curl -s $EC2METAURL`
+sudo s3fs $S3BUCKETNAME \
+-o use_cache=/tmp,iam_role="$EC2ROLE",allow_other /home/$FTPUSERNAME/ftp/files \
+-o url="https://s3-$S3BUCKETREGION.amazonaws.com" \
+-o nonempty
+```
