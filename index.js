@@ -19,11 +19,13 @@ module.exports.handler = async (event) => {
     try {
         validateImage(srcKey);
         let originImage = await s3.getObject({Bucket: srcBucket, Key: srcKey}).promise();
-        let s3Thumbnail = await saveThumbnail(originImage, srcKey);
         let plate = await plateService.getPlateInfo(Buffer.from(originImage.Body).toString('base64'));
         if (plate.results.length > 0) {
+            console.log("Car plate was recognized successfully");
+            let s3Thumbnail = await saveThumbnail(originImage, srcKey);
             vehicle = await getVehicleInfo(plate.results[0].plate);
             if (Object.keys(vehicle).length > 0) {
+                console.log("getVehicleInfo was got successfully!");
                 await store({
                     device_id: srcKey,
                     time: new Date().toISOString(),
@@ -31,7 +33,12 @@ module.exports.handler = async (event) => {
                     plate: JSON.stringify(plate),
                     vehicle: JSON.stringify(vehicle)
                 });
+                console.log("Car info was stored successfully!");
+            } else {
+                console.log("getVehicleInfo was not got successfully!");
             }
+        } else {
+            console.log("Plate was not recognized!");
         }
         await notifyService.notify({...event.Records[0].s3, plate, vehicle});
     } catch (error) {
