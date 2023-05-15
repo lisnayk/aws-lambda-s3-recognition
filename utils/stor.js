@@ -14,7 +14,7 @@ const mysql = require('serverless-mysql')({config: dbConfig});
 module.exports.store = async (data) => {
     const deviceId = extractDeviceId(data.device_id);
     const buildingId = await getBuildingIdByDeviceId(deviceId)
-    console.log(deviceId, buildingId);
+    console.log("Store data log:" , data, deviceId, buildingId);
     let res = await mysql.query(
         "INSERT INTO `parking_camera_logs` (`device_id`, `building_id`,`picture`, `time`, `plate`, `vehicle`) VALUES(?,?,?,?,?,?);",
         [

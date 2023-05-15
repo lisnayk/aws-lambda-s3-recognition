@@ -27,7 +27,7 @@ module.exports.saveThumbnail = async (originImage, srcName) => {
         Key: destKey,
         Body: buffer,
         ContentType: "image",
-        ACL: 'public-read'
+        //ACL: 'public-read'
     };
     await s3.putObject(destparams).promise();
     return destKey;
