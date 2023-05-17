@@ -2,7 +2,7 @@ const sharp = require("sharp");
 const md5 = require("md5");
 const AWS = require('aws-sdk');
 const s3 = new AWS.S3();
-const CROP_WIDTH = process.env.IMAGE_SERVICE_CROP_WIDTH ?? 200;
+const CROP_WIDTH = parseInt(process.env.IMAGE_SERVICE_CROP_WIDTH ?? 200);
 const PUBLIC_BUCKET = process.env.IMAGE_SERVICE_PUBLIC_BUCKET ?? "bm-car-plates";
 const PLATES_PATH = process.env.IMAGE_SERVICE_PLATES_PATH ?? "images/";
 /**
@@ -27,7 +27,7 @@ module.exports.saveThumbnail = async (originImage, srcName) => {
         Key: destKey,
         Body: buffer,
         ContentType: "image",
-        ACL: 'public-read'
+        //ACL: 'public-read'
     };
     await s3.putObject(destparams).promise();
     return destKey;
