@@ -1,5 +1,6 @@
 const notifyService = require("./utils/notify-service");
 const plateService = require("./utils/plate-service");
+const webhookService = require("./utils/webhook-service");
 const AWS = require('aws-sdk');
 const {getVehicleInfo} = require("./utils/vehicle-service");
 const {store} = require("./utils/stor");
@@ -29,13 +30,15 @@ module.exports.handler = async (event) => {
                 console.log("getVehicleInfo was not got successfully!");
             }
             let s3Thumbnail = await saveThumbnail(originImage, srcKey);
-            await store({
+            const payload = {
                 device_id: srcKey,
                 time: new Date().toISOString(),
                 picture: s3Thumbnail,
                 plate: JSON.stringify(plate),
                 vehicle: JSON.stringify(vehicle)
-            });
+            }
+            await store(payload);
+            await webhookService.callWebhook(payload)
             console.log("Car info was stored successfully!");
         } else {
             console.log("Plate was not recognized!");
